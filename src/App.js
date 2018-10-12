@@ -15,22 +15,21 @@ const randomUserURL = 'https://randomuser.me/api?results=10&seed=abc';
 
 const LoginRouter = () => (
   
- /*
-    <React.Fragment>
-      <Login />
-    </React.Fragment>
- */
-<Provider store={store}>
-  <Router>
-    <div>
-      <AuthButton />
-      <Route path="/" component={Public} />
-      <Route path="/login" component={Login} />
-      <PrivateRoute path="/protected" component={ProtectedPage} />
-      <PrivateRoute path="/protected/profile" component={DetailUserList} />
-    </div>
-  </Router>
+  <Provider store={store}>
+    <Router>
+      <div>
+        <Header />  
+        <Route path="/" component={Public} />
+        <div className="detail-user-logged-wrapper">         
+          <Route path="/login" component={Login} />
+          <PrivateRoute path="/protected" component={ProtectedPage} />
+          <PrivateRoute path="/protected/profile" component={DetailUserList} />
+        </div>     
+        <Footer />
+      </div>
+    </Router> 
   </Provider>
+  
   
 );
 
@@ -50,21 +49,16 @@ const AuthButton = withRouter(
   ({ history }) =>
     fakeAuth.isAuthenticated ? (
       <p>
-        Welcome!{" "}
-        <button
+        <button className='button-action-header'
           onClick={() => {
             fakeAuth.signout(() => history.push("/"));
           }}
         >
-          Sign out
+          Cerrar sesion
         </button>
       </p>
     ) : (
-      <ul>
-        <li>
-          <Link to="/protected">Login</Link>
-        </li>
-      </ul> 
+      <Link className='button-action-header' to="/protected">Iniciar sesion</Link>     
     )
 );
 
@@ -90,7 +84,9 @@ const Public = () =>
   fakeAuth.isAuthenticated ? (
     ''
   ) : (
-    <h3>Public</h3>
+    <div className="web-description-wrapper">
+      <p>Para comenzar a leer comentarios pulse en el boton <span>Iniciar sesión</span></p>
+    </div>
   )
 
 /***********************************************************************************/
@@ -113,9 +109,9 @@ const Protected  = connect(
 )*/
 
 const ProtectedPage = (userLogged) => (
-  <React.Fragment> 
+  <React.Fragment>    
     <DetailUserLogged />
-    <ListUsers />
+    <ListUsers />    
   </React.Fragment> 
  );
 
@@ -130,19 +126,23 @@ const mapStateToProps = state => {
 const DetailUserLogged  = connect(
   mapStateToProps
 )(({userLogged}) =>
-  <React.Fragment> 
-    <DetailUserView user={userLogged} />
-    <h2>comentarios</h2>
-    <ShowUserComments user={userLogged} />
-    <ShowUserSubscriptionsData user={userLogged} />
-    <ShowUserNewComment user={userLogged} />
+  <React.Fragment>    
+    <div className="layout-element">
+      <div className="detail-element">
+      <DetailUserView user={userLogged} />     
+      <ShowUserComments user={userLogged} />
+      <ShowUserSubscriptionsData user={userLogged} />
+      <ShowUserNewComment user={userLogged} />    
+      </div>
+    </div>
   </React.Fragment> 
 )
 
 const mapStateToPropsList = state => {
   return {
     userSelected: state.actions.userSelected,
-    userLogged: state.login.userLogged
+    userLogged: state.login.userLogged,
+    subscription: state.actions.subscription
   }
 }
 
@@ -150,8 +150,12 @@ const DetailUserList = connect(
   mapStateToPropsList
 )(({userSelected, userLogged}) =>
   <React.Fragment>
-    <DetailUserView user={userSelected} />
-    <DetailUserViewButton user={userSelected} userLogged={userLogged}/>
+    <div className="layout-element">
+      <div className="detail-element">
+        <DetailUserView user={userSelected} />
+        <DetailUserViewButton user={userSelected} userLogged={userLogged}/>
+      </div> 
+    </div>
   </React.Fragment> 
 )
 
@@ -168,9 +172,9 @@ const requestSubscription = (user, userLogged) => {
 
 const DetailUserView = ({user}) =>  
   <div>
-    <h3>{user.name.first} {user.name.last}</h3>
-    <img src={user.picture.thumbnail} alt={`user.name.first user.name.last`} />
-    <p>{user.email}</p>    
+    <h2 className="user-name-detail">{user.name.first} {user.name.last}</h2>
+    <img className="user-photo-detail" src={user.picture.large} alt={`user.name.first user.name.last`} />
+    <p className="user-email-detail">{user.email}</p>    
   </div>
 
 const isSendResquestSubscription = (user, userLogged) => {
@@ -204,7 +208,7 @@ const DetailUserViewButton = ({user, userLogged}) => {
   } else if (stateRequest === 'IS_ACCEPTED'){
     return <ShowUserComments user={user} />
   } else {
-    return 'Pendiente de aceptar subscripcion';
+    return <p className="pending-accept-subscribe">Pendiente de aceptar subscripción</p>;
   }   
 }
 
@@ -218,7 +222,7 @@ class ShowUserComments extends React.Component {
         return null;
       } else {
         const comments = userData===undefined ? {} : JSON.parse(userData).comments;
-        return comments.map(comment => <li key={comment}>{comment}</li>);        
+      return <div className="user-comments-detail"><p className="user-comments-detail-title">Comentarios:</p>{ comments.map(comment =><li key="comment">{comment}</li>)}</div>;
       }
   }
 }
@@ -262,7 +266,6 @@ class ShowUserSubscriptionsData extends React.Component {
 }
 
 const newComment = (user, comment) => {
-  debugger
   const userData = localStorage.getItem(user.login.username) === null ? {} : JSON.parse(localStorage.getItem(user.login.username)); 
   const comments = userData.comments === undefined ? new Array():userData.comments;  
   comments.push(comment);
@@ -284,7 +287,7 @@ class ShowUserNewComment extends React.Component {
 
   render() {    
     return (
-      <div>
+      <div className="user-newComment-wrapper">
         <label htmlFor="comment">Comentario</label>
         <input type="textarea" name="comment" maxLength='500' onChange={ this.updateComment} />
         <input type="button" value="Nuevo comentario" onClick={ () => newComment(this.state.userSelected, this.state.comment)} />
@@ -314,21 +317,23 @@ const ListUsers  = connect(
   mapStateToPropsListUsers, mapDispatchToPropsListUser
 )(({usersList, userLogged}) =>
   <React.Fragment>
-  <ul> Listado de autores
-    {usersList.map(user =>
-      user.login.username !== userLogged.login.username? (
-      <li key={user.name.last}>
-        <Link to='/protected/profile' onClick={ () => userSelected(user) }>{user.name.first} {user.name.last}</Link>
-        <div>
-          <img src={user.picture.thumbnail} alt={`user.name.first user.name.last`} />
-          <p>{user.email}</p>
-        </div>        
-      </li>): (
-          ''
-      ))
-      }
-    
-</ul>    
+    <div className="layout-element">
+      <h2 className="list-user-title">Listado de autores</h2>
+      <ul> 
+        {usersList.map(user =>
+          user.login.username !== userLogged.login.username? (
+          <li key={user.name.last} className="list-user-element">
+            <Link to='/protected/profile' className="list-user-name" onClick={ () => userSelected(user) }>{user.name.first} {user.name.last}</Link>
+            <div>
+              <img className="list-user-photo" src={user.picture.medium} alt={`user.name.first user.name.last`} />
+              <p className="list-user-email">{user.email}</p>
+            </div>        
+          </li>): (
+              ''
+          ))
+        }    
+      </ul>    
+    </div>
   </React.Fragment> 
 )
 
@@ -378,7 +383,7 @@ class Login extends React.Component {
     const { from } = { from: { pathname: "/protected" } };
     const { redirectToReferrer } = this.state;
     const { users } = this.state;
-    
+  
     if (redirectToReferrer) { 
       return <Redirect to={from} />;
     }
@@ -388,12 +393,44 @@ class Login extends React.Component {
         <label htmlFor="user">usuario</label>
         <input type="text" name="user" value={ this.state.user } onChange={this.updateUser} />          
         <label htmlFor="password">contraseña </label>
-        <input type="text" name="password" value={ this.state.password } onChange={this.updatePassword} />         
+        <input type="password" name="password" value={ this.state.password } onChange={this.updatePassword} />         
         <input type="button" value="Enviar" onClick={ () => this.login(users, this.state.user, this.state.password) } />
-        <p>{ this.state.error }</p>
+        <p className="error">{ this.state.error }</p>
       </div>
     );
   }
 }
+
+
+/*************** COMPONENTES GLOBALES HEADER Y FOOTER ***************/
+
+const Header = () => 
+  <header>
+    <div className="header-principal">
+      <div className="title-container">
+        <h1 id="title" className="title">Comentando</h1>
+      </div>
+      <nav className="menu">
+        <div className="menu-wrapper">       
+          <div className="link-wrapper">      
+            <AuthButton />
+          </div>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+ const Footer = () => 
+  <footer>
+    <div className="title-container-footer">
+      <p>Comentando</p>
+      <p className="copiright"> © 2018 Comentando. All rights reserved.</p>
+    </div>
+    <nav className="social">
+        <i className="fab fa-twitter social-icon"></i>
+        <i className="fab fa-facebook-square social-icon"></i>
+        <i className="fab fa-google-plus-g social-icon"></i>
+    </nav>
+  </footer>
 
 export default LoginRouter;

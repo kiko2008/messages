@@ -151,7 +151,7 @@ const DetailUserList = connect(
 )(({userSelected, userLogged}) =>
   <React.Fragment>
     <div className="layout-element">
-      <div className="detail-element">
+      <div className="detail-element detail-element-selected">
         <DetailUserView user={userSelected} />
         <DetailUserViewButton user={userSelected} userLogged={userLogged}/>
       </div> 
@@ -208,7 +208,7 @@ const DetailUserViewButton = ({user, userLogged}) => {
   } else if (stateRequest === 'IS_ACCEPTED'){
     return <ShowUserComments user={user} />
   } else {
-    return <p className="pending-accept-subscribe">Pendiente de aceptar subscripción</p>;
+    return <p className="user-detail-warnings">Pendiente de aceptar subscripción</p>;
   }   
 }
 
@@ -216,14 +216,16 @@ class ShowUserComments extends React.Component {
   state = {
     userSelected: this.props.user,
   }
-  render() {    
-      const userData = localStorage.getItem(this.state.userSelected.login.username); 
-      if(userData === null) {
-        return null;
-      } else {
-        const comments = userData===undefined ? {} : JSON.parse(userData).comments;
-      return <div className="user-comments-detail"><p className="user-comments-detail-title">Comentarios:</p>{ comments.map(comment =><li key="comment">{comment}</li>)}</div>;
-      }
+  render() {
+    const userData = localStorage.getItem(this.props.user.login.username);
+    if(userData === null) {
+      return <p className="user-detail-warnings">Sin comentarios</p>;
+    } else if(JSON.parse(userData).comments === undefined){
+      return <p className="user-detail-warnings">Sin comentarios</p>;
+    } else {  
+      const comments = userData===undefined ? {} : JSON.parse(userData).comments;
+      return <div className="user-detail-wrapper"><p className="user-comments-detail-title">Comentarios:</p>{ comments.map(comment =><li key={comment}>{comment}</li>)}</div>;
+    }
   }
 }
 
@@ -247,20 +249,24 @@ class ShowUserSubscriptionsData extends React.Component {
   render() {
     const userData = localStorage.getItem(this.state.userSelected.login.username);
     if(userData === null) {
-      return null;
-    } else {     
-      const subscriptions = userData.subscriptions===undefined ? new Array() : JSON.parse(userData).subscriptions;
-      return subscriptions.map(subscription => 
-        subscription.isaccepted ? (
-          <li key={subscription.username}>{subscription.username}</li>  
-        ) : (
-          <ul>
-            <li>
-            <li key={subscription.username}>{subscription.username} <input type="button" onClick={ () => acceptSubscribe(this.state.userSelected, subscription) } value='Aceptar subscripción'/></li>  
-            </li>
-          </ul>        
-        )    
-      );
+      return <p className="user-detail-warnings">Sin suscripciones</p>;
+    } else {    
+      debugger
+      const subscriptions = JSON.parse(userData).subscriptions===undefined ? new Array() : JSON.parse(userData).subscriptions;
+      if(subscriptions.length === 0) {
+        return <p className="user-detail-warnings">Sin suscripciones</p>;
+      } else {          
+        return <div className="user-detail-wrapper"><p className="user-comments-detail-title">Suscripciones:</p>{subscriptions.map(subscription => 
+          subscription.isaccepted ? (
+            <li key={subscription.username}>{subscription.username}</li>  
+          ) : (                     
+            <div>
+            <p key={subscription.username}>{subscription.username}</p>
+            <input type="button" onClick={ () => acceptSubscribe(this.state.userSelected, subscription) } value='Aceptar subscripción'/>
+            </div>
+          )    
+        )}</div>
+      }  
     }   
   }
 }
@@ -289,7 +295,9 @@ class ShowUserNewComment extends React.Component {
     return (
       <div className="user-newComment-wrapper">
         <label htmlFor="comment">Comentario</label>
-        <input type="textarea" name="comment" maxLength='500' onChange={ this.updateComment} />
+        
+        <textarea className="user-comment-input" name="comment" id="comment-form-message" maxLength="500"
+                    placeholder="Escribe un mensaje de no más de 500 caracteres" onChange={ this.updateComment} ></textarea>
         <input type="button" value="Nuevo comentario" onClick={ () => newComment(this.state.userSelected, this.state.comment)} />
       </div>
     )

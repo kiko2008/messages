@@ -332,12 +332,14 @@ body {
 }
 
 .detail-element {
-  
-  position: fixed;
-  margin-top: 50px;
+  margin-top: 25px;
   border: 2px solid #37C6AA;
   box-shadow: 0 1px 4px rgba(152,152,152, 1);
   padding: 30px;
+}
+
+.detail-element-selected {
+  position: fixed;
 }
  
 /***********************   FOOTER  ***************************************/
@@ -507,12 +509,12 @@ input[type="button"]  {
   text-align: center;
 }
 
-.user-comments-detail {
+.user-detail-wrapper {
   max-width: 200px;
   word-wrap: break-word;
 } 
 
-.user-comments-detail li {
+.user-detail-wrapper li {
   list-style: none;
   margin-bottom: 5px;
   border-bottom: 1px solid rgba(53,198,170, 0.4);
@@ -532,9 +534,18 @@ input[type="button"]  {
   flex-direction: column; 
 }
 
-.pending-accept-subscribe{
+.user-detail-warnings{
   color:rgba(95,75,182, 0.7);
   font-weight: bold;
+  word-wrap: break-word;
+  max-width: 170px;
+  text-align: center;
+}
+
+.user-comment-input {
+  height:100px;
+  max-height: 100px;
+  max-width: 200px;
 }
   /************************** FIN USER DETAIL COMPONENT *************************/
 

@@ -26,7 +26,7 @@ El frontend se nutre del api https://randomuser.me/api?results=100&seed=abc.
 Para realizar el login, una vez cargados los usuarios del API, se realiza una busqueda con el usuario y password dentro del listado proporcionado en el api.
 
 Para la parte de persistencia de comentarios y suscripciones se ha utilizado #LocalStorage, para cada usuario se creara una estructura similar a la siguiente:
-{"subscriptions":[{"username":"nombreEjemplo","isaccepted":false}],"comments":["ejemplo comentario"]}
+#{"subscriptions":[{"username":"nombreEjemplo","isaccepted":false}],"comments":["ejemplo comentario"]}
 
 ### Url de prueba para la web
 

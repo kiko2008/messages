@@ -4,7 +4,7 @@ import { authFunction } from '../../utils/utils'
 import store from '../../store';
 import { login, loginSuccess, loginUnSuccess } from '../actions/LoginActions';
 
-const randomUserURL = 'https://randomuser.me/api?results=10&seed=abc';
+const randomUserURL = 'https://randomuser.me/api?results=100&seed=abc';
 
 class Login extends React.Component {
 

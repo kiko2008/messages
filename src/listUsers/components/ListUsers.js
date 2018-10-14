@@ -26,10 +26,10 @@ const mapStateToPropsListUsers = state => {
         <ul> 
           {usersList.map(user =>
             user.login.username !== userLogged.login.username? (
-            <li key={user.name.last} className="list-user-element">
+            <li key={`${user.name.first}${user.login.password}`} className="list-user-element">
               <Link to='/protected/profile' className="list-user-name" onClick={ () => userSelected(user) }>{user.name.first} {user.name.last}</Link>
               <div>
-                <img className="list-user-photo" src={user.picture.medium} alt={`user.name.first user.name.last`} />
+                <img className="list-user-photo" src={user.picture.medium} alt={`${user.name.first}${user.name.last}`}/>
                 <p className="list-user-email">{user.email}</p>
               </div>        
             </li>): (
